@@ -1,4 +1,3 @@
-
 # Simulateur numérique 1D de l’équation d’advection
 
 Ce projet implémente un simulateur pour l’équation d’advection linéaire en une dimension.
@@ -10,27 +9,27 @@ Il inclut plusieurs schémas numériques (Upwind et Lax–Wendroff), une solutio
 
 Le phénomène étudié est décrit par l’équation :
 
-[
-\frac{\partial u}{\partial t} + a,\frac{\partial u}{\partial x} = 0, \quad a>0
-]
+$$
+\frac{\partial u}{\partial t} + a,\frac{\partial u}{\partial x} = 0, \quad a > 0
+$$
 
 où :
 
-* $(u(x,t))$ est la quantité transportée,
-* (a) est la vitesse d’advection (constante).
+* $u(x,t)$ est la quantité transportée,
+* $a$ est la vitesse d’advection (constante).
 
 ### 1.1 Domaine et maillage
 
 Le domaine est défini par :
 
-* un intervalle temporel ([t_{\text{ini}}, t_{\text{final}}]) avec un pas (\Delta t),
-* un intervalle spatial ([x_{\min}, x_{\max}]) avec un pas (\Delta x).
+* un intervalle temporel $[t_{\text{ini}}, t_{\text{final}}]$ avec un pas $\Delta t$,
+* un intervalle spatial $[x_{\min}, x_{\max}]$ avec un pas $\Delta x$.
 
 Le nombre total de points spatiaux est :
 
-[
-N_x = \frac{x_{\max}-x_{\min}}{\Delta x} + 1.
-]
+$$
+N_x = \frac{x_{\max} - x_{\min}}{\Delta x} + 1.
+$$
 
 Un maillage uniforme est utilisé pour la discrétisation.
 
@@ -38,22 +37,25 @@ Un maillage uniforme est utilisé pour la discrétisation.
 
 La condition initiale choisie est une gaussienne centrée au milieu du domaine :
 
-[
-u(x,0) = \frac{1}{\sigma\sqrt{2\pi}} \exp!\left( - \frac{(x-\mu)^2}{2\sigma^2} \right)
-]
+$$
+u(x,0) = \frac{1}{\sigma\sqrt{2\pi}}
+\exp!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right),
+$$
 
 avec :
 
-* (\mu = \dfrac{x_{\min}+x_{\max}}{2}),
-* (\sigma = 10,\Delta x).
+* $\mu = \dfrac{x_{\min} + x_{\max}}{2}$,
+* $\sigma = 10,\Delta x$.
+
+Cette fonction sert de profil initial transporté par l’équation.
 
 ### 1.3 Solution exacte
 
 La solution analytique est une simple translation de la condition initiale :
 
-[
-u_{\text{exact}}(x,t) = u_0(x - a t)
-]
+$$
+u_{\text{exact}}(x,t) = u_0(x - a t),
+$$
 
 ce qui permet une comparaison directe avec les solutions numériques.
 
@@ -67,9 +69,9 @@ Les méthodes employées sont explicites et utilisent un maillage uniforme.
 
 La stabilité des schémas est gouvernée par le nombre de Courant :
 
-[
-\mathrm{CFL} = \frac{a,\Delta t}{\Delta x}.
-]
+$$
+\text{CFL} = \frac{a,\Delta t}{\Delta x}.
+$$
 
 Une valeur proche de 0.5 est adoptée dans le projet.
 
@@ -77,9 +79,9 @@ Une valeur proche de 0.5 est adoptée dans le projet.
 
 Le schéma d’ordre 1 repose sur une discrétisation décentrée amont :
 
-[
-u_i^{n+1} = u_i^n - \mathrm{CFL},(u_i^n - u_{i-1}^n).
-]
+$$
+u_i^{n+1} = u_i^n - \text{CFL},(u_i^n - u_{i-1}^n).
+$$
 
 Ce schéma est stable et simple, mais souffre de diffusion numérique.
 
@@ -87,9 +89,14 @@ Ce schéma est stable et simple, mais souffre de diffusion numérique.
 
 Le schéma d’ordre 2 améliore la précision et limite la diffusion :
 
-[
-u_i^{n+1} = u_i^n - \frac{\mathrm{CFL}}{2}(u_{i+1}^n - u_{i-1}^n) + \frac{\mathrm{CFL}^2}{2}(u_{i+1}^n - 2u_i^n + u_{i-1}^n).
-]
+$$
+u_i^{n+1}
+= u_i^n
+
+* \frac{\text{CFL}}{2}(u_{i+1}^n - u_{i-1}^n)
+
+- \frac{\text{CFL}^2}{2}(u_{i+1}^n - 2u_i^n + u_{i-1}^n).
+  $$
 
 Il conserve mieux la forme de la gaussienne, mais peut générer des oscillations en présence de forts gradients.
 
@@ -99,7 +106,7 @@ Il conserve mieux la forme de la gaussienne, mais peut générer des oscillation
 
 ### 3.1 Maillage
 
-* **IMesh** : interface décrivant les accès au maillage.
+* **IMesh** : interface décrivant les accès au maillage (positions, temps, pas, tailles).
 * **UniformMesh** : maillage uniforme utilisé dans toutes les simulations.
 
 ### 3.2 Stockage des variables
@@ -114,7 +121,7 @@ Il conserve mieux la forme de la gaussienne, mais peut générer des oscillation
   * calcule la condition initiale gaussienne,
   * calcule la solution exacte,
   * met en œuvre le schéma Upwind,
-  * fournit un schéma d’ordre 2.
+  * fournit un schéma d’ordre 2 (méthode interne ou via templates).
 * **Upwind** et **LaxWendroff** :
 
   * fournissent les mises à jour spécifiques pour chaque schéma.
@@ -216,6 +223,8 @@ Des fichiers de sortie sont générés :
 Variable_<nom>_<iteration>.data
 ```
 
+Ils contiennent les valeurs obtenues à chaque pas de temps.
+
 ### Mode parallèle
 
 Si la méthode `solve_parallel()` est activée :
@@ -304,6 +313,3 @@ gnuplot plot.gp
 ```bash
 ctest
 ```
-
----
-
