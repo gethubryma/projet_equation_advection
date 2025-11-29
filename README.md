@@ -23,8 +23,8 @@ où :
 
 Le domaine est défini par :
 
-* un intervalle temporel ([t_{\text{ini}},t_{\text{final}}]) avec un pas (\Delta t),
-* un intervalle spatial ([x_{\min},x_{\max}]) avec un pas (\Delta x).
+* un intervalle temporel ([t_{\text{ini}},, t_{\text{final}}]) avec un pas (\Delta t),
+* un intervalle spatial ([x_{\min},, x_{\max}]) avec un pas (\Delta x).
 
 Le nombre total de points spatiaux est :
 
