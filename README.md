@@ -1,5 +1,4 @@
 
-
 # Simulateur numérique 1D de l’équation d’advection
 
 Ce projet implémente un simulateur pour l’équation d’advection linéaire en une dimension.
@@ -12,14 +11,13 @@ Il inclut plusieurs schémas numériques (Upwind et Lax–Wendroff), une solutio
 Le phénomène étudié est décrit par l’équation :
 
 [
-\frac{\partial u}{\partial t} + a,\frac{\partial u}{\partial x} = 0,
-\qquad a > 0
+\frac{\partial u}{\partial t} + a,\frac{\partial u}{\partial x} = 0, \quad a>0
 ]
 
 où :
 
-* ( u(x,t) ) représente la quantité transportée,
-* ( a ) désigne la vitesse d’advection (constante).
+* (u(x,t)) est la quantité transportée,
+* (a) est la vitesse d’advection (constante).
 
 ### 1.1 Domaine et maillage
 
@@ -31,35 +29,33 @@ Le domaine est défini par :
 Le nombre total de points spatiaux est :
 
 [
-N_x = \frac{x_{\max} - x_{\min}}{\Delta x} + 1.
+N_x = \frac{x_{\max}-x_{\min}}{\Delta x} + 1.
 ]
 
 Un maillage uniforme est utilisé pour la discrétisation.
 
 ### 1.2 Condition initiale
 
-La condition initiale est une gaussienne centrée au milieu du domaine :
+La condition initiale choisie est une gaussienne centrée au milieu du domaine :
 
 [
-u(x,0) =
-\frac{1}{\sigma\sqrt{2\pi}}
-\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right),
+u(x,0) = \frac{1}{\sigma\sqrt{2\pi}} \exp!\left( - \frac{(x-\mu)^2}{2\sigma^2} \right)
 ]
 
 avec :
 
-* ( \mu = \dfrac{x_{\min} + x_{\max}}{2} ),
-* ( \sigma = 10,\Delta x ).
+* (\mu = \dfrac{x_{\min}+x_{\max}}{2}),
+* (\sigma = 10,\Delta x).
 
 ### 1.3 Solution exacte
 
-La solution analytique correspondant à l’équation d’advection est :
+La solution analytique est une simple translation de la condition initiale :
 
 [
-u_{\text{exact}}(x,t) = u_0(x - a t),
+u_{\text{exact}}(x,t) = u_0(x - a t)
 ]
 
-ce qui permet une comparaison directe avec la solution numérique.
+ce qui permet une comparaison directe avec les solutions numériques.
 
 ---
 
@@ -69,39 +65,33 @@ Les méthodes employées sont explicites et utilisent un maillage uniforme.
 
 ### 2.1 Condition CFL
 
-La stabilité des schémas est assurée par le nombre de Courant :
+La stabilité des schémas est gouvernée par le nombre de Courant :
 
 [
-\text{CFL} = \frac{a,\Delta t}{\Delta x}.
+\mathrm{CFL} = \frac{a,\Delta t}{\Delta x}.
 ]
 
-Une valeur proche de 0.5 est utilisée.
+Une valeur proche de 0.5 est adoptée dans le projet.
 
 ### 2.2 Schéma Upwind (ordre 1)
 
-Le schéma Upwind d’ordre 1 s’écrit :
+Le schéma d’ordre 1 repose sur une discrétisation décentrée amont :
 
 [
-u_i^{n+1}
-= u_i^n - \text{CFL},(u_i^n - u_{i-1}^n).
+u_i^{n+1} = u_i^n - \mathrm{CFL},(u_i^n - u_{i-1}^n).
 ]
 
-Ce schéma est simple et stable, mais introduit une diffusion numérique perceptible.
+Ce schéma est stable et simple, mais souffre de diffusion numérique.
 
 ### 2.3 Schéma de Lax–Wendroff (ordre 2)
 
-Le schéma de Lax–Wendroff améliore la précision :
+Le schéma d’ordre 2 améliore la précision et limite la diffusion :
 
 [
-u_i^{n+1}
-= u_i^n
+u_i^{n+1} = u_i^n - \frac{\mathrm{CFL}}{2}(u_{i+1}^n - u_{i-1}^n) + \frac{\mathrm{CFL}^2}{2}(u_{i+1}^n - 2u_i^n + u_{i-1}^n).
+]
 
-* \frac{\text{CFL}}{2}(u_{i+1}^n - u_{i-1}^n)
-
-- \frac{\text{CFL}^2}{2}(u_{i+1}^n - 2u_i^n + u_{i-1}^n).
-  ]
-
-Ce schéma conserve mieux la forme du signal mais peut produire des oscillations.
+Il conserve mieux la forme de la gaussienne, mais peut générer des oscillations en présence de forts gradients.
 
 ---
 
@@ -109,60 +99,62 @@ Ce schéma conserve mieux la forme du signal mais peut produire des oscillations
 
 ### 3.1 Maillage
 
-* **IMesh** : interface pour les accès au maillage.
-* **UniformMesh** : maillage uniforme utilisé pour toutes les simulations.
+* **IMesh** : interface décrivant les accès au maillage.
+* **UniformMesh** : maillage uniforme utilisé dans toutes les simulations.
 
 ### 3.2 Stockage des variables
 
-* **Variable** : stockage des valeurs discrétisées du champ.
-* Export possible vers des fichiers `.data`.
+* **Variable** contient les valeurs discrétisées de chaque champ aux points du maillage.
+* Les valeurs peuvent être écrites dans des fichiers `.data` (un fichier par variable et par itération).
 
 ### 3.3 Équation et schémas
 
 * **Equation** :
 
-  * calcule la condition initiale,
+  * calcule la condition initiale gaussienne,
   * calcule la solution exacte,
-  * implémente le schéma Upwind,
+  * met en œuvre le schéma Upwind,
   * fournit un schéma d’ordre 2.
-* **Upwind** et **LaxWendroff** : classes dédiées aux mises à jour.
+* **Upwind** et **LaxWendroff** :
+
+  * fournissent les mises à jour spécifiques pour chaque schéma.
 
 ### 3.4 Mesure de temps
 
-* **Timer** : temps d’exécution des itérations et du calcul complet.
+* **Timer** mesure la durée d’une itération et du calcul complet.
 
 ### 3.5 Résolution
 
-La classe **Problem** effectue :
+La classe **Problem** réalise :
 
 * la création des variables,
 * la boucle temporelle,
-* l’appel aux schémas,
+* l’appel aux schémas numériques,
 * l’écriture des résultats,
 * l’exécution séquentielle ou parallèle.
 
 ### 3.6 Programme principal
 
-* configuration du maillage et de la vitesse,
+* configuration du maillage et de la vitesse d’advection,
 * création des objets Equation et Problem,
 * lancement du calcul.
 
 ### 3.7 Tests unitaires
 
-Les tests GoogleTest vérifient :
+Basés sur GoogleTest, ils vérifient :
 
 * la cohérence du maillage,
 * le comportement des variables,
-* l’absence d’erreurs dans les méthodes de Equation et Problem.
+* l’absence d’erreurs dans Equation et Problem.
 
 ### 3.8 Visualisation
 
-Le script `plot.gp` permet de tracer :
+Le script Gnuplot `plot.gp` permet de tracer :
 
 * la condition initiale,
-* la solution numérique Upwind,
+* la solution numérique (Upwind),
 * la solution exacte,
-* la solution d’ordre 2.
+* la solution d’ordre 2 si souhaité.
 
 ---
 
@@ -189,7 +181,7 @@ Le script `plot.gp` permet de tracer :
 
 * CMake ≥ 3.10
 * Compilateur C++17
-* GoogleTest
+* GoogleTest installé
 * Threads C++
 
 ### Commandes
@@ -203,8 +195,8 @@ cmake --build .
 
 Les exécutables générés sont :
 
-* l’exécutable principal,
-* l’exécutable des tests unitaires.
+* l’exécutable principal de simulation,
+* l’exécutable de tests unitaires.
 
 ---
 
@@ -218,7 +210,7 @@ Depuis `build` :
 ./main.exe
 ```
 
-Des fichiers de sortie sont produits :
+Des fichiers de sortie sont générés :
 
 ```
 Variable_<nom>_<iteration>.data
@@ -226,11 +218,13 @@ Variable_<nom>_<iteration>.data
 
 ### Mode parallèle
 
-Si la fonction `solve_parallel()` est activée :
+Si la méthode `solve_parallel()` est activée :
 
 ```bash
 ./main.exe
 ```
+
+La mise à jour des solutions est alors répartie sur plusieurs threads.
 
 ---
 
@@ -242,7 +236,11 @@ Depuis la racine du projet :
 gnuplot plot.gp
 ```
 
-Le fichier `plot.png` est généré.
+Une image `plot.png` est générée et montre :
+
+* la condition initiale,
+* les solutions numériques,
+* la solution exacte.
 
 ---
 
@@ -256,7 +254,7 @@ Depuis `build` :
 ctest
 ```
 
-### Ou exécution directe
+### Ou en lançant directement l’exécutable
 
 ```bash
 ./unit_tests
@@ -266,14 +264,14 @@ ctest
 
 ## 9. Paramètres modifiables
 
-Les paramètres suivants peuvent être ajustés :
+Dans le fichier principal, les paramètres ajustables sont :
 
 * temps initial et final,
 * pas de temps,
 * domaine spatial,
 * pas en espace,
 * vitesse d’advection,
-* choix du schéma (ordre 1 ou 2),
+* choix du schéma (ordre 1 ou ordre 2),
 * mode séquentiel ou parallèle.
 
 ---
@@ -309,7 +307,3 @@ ctest
 
 ---
 
-Si une version optimisée pour l’affichage GitHub ou une version avec formules simplifiées est nécessaire, elle peut être générée.
-
-
-Ce README présente le fonctionnement du simulateur, les formules mathématiques, l’organisation du projet, les commandes d’exécution et les outils disponibles pour analyser les résultats.
