@@ -16,7 +16,7 @@ Le phénomène étudié est décrit par l’équation :
 
 où :
 
-* (u(x,t)) est la quantité transportée,
+* $(u(x,t))$ est la quantité transportée,
 * (a) est la vitesse d’advection (constante).
 
 ### 1.1 Domaine et maillage
