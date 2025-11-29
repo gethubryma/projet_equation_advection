@@ -1,7 +1,3 @@
-Voici le **README complet**, **corrigé**, **prêt à copier-coller**, avec les **équations correctement écrites** en format compatible **GitHub (KaTeX/MathJax)** grâce aux blocs `$$ ... $$`.
-Aucun code n’a été réinséré, uniquement les explications + commandes.
-
----
 
 # Simulateur numérique 1D de l’équation d’advection
 
